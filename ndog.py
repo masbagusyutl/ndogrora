@@ -30,17 +30,29 @@ HEADERS = {
 def login(account_id):
     url = f"{BASE_URL}/users/data/{account_id}"
     response = requests.get(url, headers=HEADERS)
-    return response.json()
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Login failed for account {account_id}. Response: {response.text}")
+        return None
 
 def claim_daily_reward(account_id):
     url = f"{BASE_URL}/dailyRewards/collect/{account_id}"
     response = requests.put(url, headers=HEADERS)
-    return response.json()
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Daily reward claim failed for account {account_id}. Response: {response.text}")
+        return None
 
 def claim_points(account_id):
     url = f"{BASE_URL}/barrel/expectation/{account_id}"
     response = requests.put(url, headers=HEADERS)
-    return response.json()
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Point claim failed for account {account_id}. Response: {response.text}")
+        return None
 
 def read_accounts(file_path):
     with open(file_path, 'r') as file:
@@ -54,8 +66,10 @@ def print_account_info(account_info):
     print(f"Overall Score: {user['overallScore']}")
 
 def print_claim_info(claim_info):
-    print(f"Last Entrance: {claim_info['lastEntrance']}")
-    print(f"Collection Time: {claim_info['collectionTime']}")
+    last_entrance = datetime.datetime.fromisoformat(claim_info['lastEntrance'][:-1])
+    collection_time = datetime.datetime.fromisoformat(claim_info['collectionTime'][:-1])
+    print(f"Last Entrance: {last_entrance.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Collection Time: {collection_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 def print_daily_reward_info(daily_reward_info):
     print(f"Score: {daily_reward_info['score']}")
@@ -81,6 +95,8 @@ def main():
             
             # Login
             account_info = login(account_id)
+            if not account_info:
+                continue
             print_account_info(account_info)
             
             # Claim Daily Reward
@@ -88,13 +104,23 @@ def main():
             last_claim_time = datetime.datetime.fromisoformat(account_info['user']['dailyReward'][0]['dateOfAward'][:-1])
             if (now - last_claim_time).days >= 1:
                 daily_reward_info = claim_daily_reward(account_id)
-                print_daily_reward_info(daily_reward_info)
+                if daily_reward_info:
+                    print_daily_reward_info(daily_reward_info)
+                else:
+                    print("Daily reward already claimed or not available yet.")
+            else:
+                print("Daily reward already claimed or not available yet.")
             
             # Claim Points every 2 hours
             last_entrance = datetime.datetime.fromisoformat(account_info['user']['barrel']['lastEntrance'][:-1])
             if (now - last_entrance).seconds >= 7200:
                 claim_info = claim_points(account_id)
-                print_claim_info(claim_info)
+                if claim_info:
+                    print_claim_info(claim_info)
+                else:
+                    print("Points claim not available yet or already claimed.")
+            else:
+                print("Points claim not available yet or already claimed.")
             
             # Wait 5 seconds before processing the next account
             time.sleep(5)
