@@ -73,6 +73,7 @@ def print_claim_info(claim_info):
     print(f"Collection Time: {collection_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 def print_daily_reward_info(daily_reward_info):
+    print(f"Claim Daily Reward...")
     print(f"Score: {daily_reward_info['score']}")
     print(f"Overall Score: {daily_reward_info['overallScore']}")
     print(f"Daily Reward")
