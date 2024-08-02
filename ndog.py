@@ -68,13 +68,14 @@ def print_account_info(account_info):
 def print_claim_info(claim_info):
     last_entrance = datetime.datetime.fromisoformat(claim_info['lastEntrance'][:-1])
     collection_time = datetime.datetime.fromisoformat(claim_info['collectionTime'][:-1])
+    print("Point claimed")
     print(f"Last Entrance: {last_entrance.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Collection Time: {collection_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 def print_daily_reward_info(daily_reward_info):
     print(f"Score: {daily_reward_info['score']}")
     print(f"Overall Score: {daily_reward_info['overallScore']}")
-    print(f"Daily Reward: {daily_reward_info['dailyReward']}")
+    print(f"Daily Reward")
     print(f"Is Reward Taken: {daily_reward_info['dailyReward'][0]['isRewardTaken']}")
 
 def countdown_timer(seconds):
