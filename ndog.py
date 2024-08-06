@@ -54,6 +54,31 @@ def claim_points(account_id):
         print(f"Point claim failed for account {account_id}. Response: {response.text}")
         return None
 
+def get_task_info(account_id):
+    url = f"{BASE_URL}/task/{account_id}"
+    response = requests.get(url, headers=HEADERS)
+    if response.status_code == 200:
+        tasks = response.json().get('tasks', [])
+        for task in tasks:
+            task_id = task['_id']
+            title_en = task['title']['en']
+            print(f"list New Task : ")
+            print(f"Task : {title_en}")
+        return tasks
+    else:
+        print(f"Failed to get task info for account {account_id}. Response: {response.text}")
+        return None
+
+def claim_task_reward(account_id, task_id):
+    url = f"{BASE_URL}/task/updateAttemptsNumber/{account_id}"
+    payload = {"taskId": task_id}
+    response = requests.put(url, json=payload, headers=HEADERS)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Task reward claim failed for task {title_en} on account {account_id}. Response: {response.text}")
+        return None
+
 def read_accounts(file_path):
     with open(file_path, 'r') as file:
         accounts = file.readlines()
@@ -123,6 +148,19 @@ def main():
                     print("Points claim not available yet or already claimed.")
             else:
                 print("Points claim not available yet or already claimed.")
+            
+            # Get Task Info and Claim Task Rewards
+            tasks = get_task_info(account_id)
+            if tasks:
+                for task in tasks:
+                    if not task['checkable'] and not task['done']:
+                        task_id = task['_id']
+                        reward_info = claim_task_reward(account_id, task_id)
+                        if reward_info:
+                            print(f"Task {title_en} claimed successfully.")
+                        else:
+                            print(f"Failed to claim task {title_en}.")
+                        time.sleep(3)  # 3 seconds delay between claiming rewards for each task
             
             # Wait 5 seconds before processing the next account
             time.sleep(5)
