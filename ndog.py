@@ -63,7 +63,7 @@ def get_task_info(account_id):
             task_id = task['_id']
             title_en = task['title']['en']
             print(f"list New Task : ")
-            print(f"Task : {title_en}")
+            print(f"{title_en}")
         return tasks
     else:
         print(f"Failed to get task info for account {account_id}. Response: {response.text}")
@@ -154,6 +154,7 @@ def main():
             if tasks:
                 for task in tasks:
                     if not task['checkable'] and not task['done']:
+                        title_en = task['title']['en']
                         task_id = task['_id']
                         reward_info = claim_task_reward(account_id, task_id)
                         if reward_info:
